@@ -1,0 +1,39 @@
+name: Sync practiceC to practiceD
+
+# When to run this workflow
+on:
+  push:
+    branches:
+      - main  # Trigger when pushing to main branch
+  
+  # Allow manual triggering
+  workflow_dispatch:
+
+jobs:
+  sync-repositories:
+    runs-on: ubuntu-latest
+    
+    steps:
+    # Step 1: Download all files from practiceC
+    - name: Checkout practiceC repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Get complete history
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    # Step 2: Configure Git with a name and email
+    - name: Configure Git
+      run: |
+        git config --global user.name "GitHub Action Bot"
+        git config --global user.email "action@github.com"
+    
+    # Step 3: Connect to practiceD repository using classic token
+    - name: Add practiceD as remote repository
+      run: |
+        git remote add target https://${{ secrets.TARGET_REPO_TOKEN }}@github.com/vikas1509/practiceD.git
+    
+    # Step 4: Push all changes to practiceD
+    - name: Push to practiceD repository
+      run: |
+        git push target --all --force
+        git push target --tags --force
